@@ -1,9 +1,4 @@
-import time, argparse
-
-from requests import get, post
-from json import loads
-from os import path
-from argparse import ArgumentParser
+import requests, json, os, httplib2, time, argparse
 
 from apiclient import discovery
 from oauth2client import client
