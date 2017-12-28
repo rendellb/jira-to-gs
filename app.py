@@ -1,17 +1,20 @@
-import requests, json, os, httplib2, time, argparse
-
+from requests import get, post
+from json import loads
+from os import path
+from time import time
+from httplib2 import Http
+from argparse import ArgumentParser
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-
 from gsjiraconfig import *
 
 ### Check if we have a credential file stored already for Google Sheets. If not, authenticate the user.
 def getCredentials():
-    credential_path = os.path.join('jira-to-gs.json')
+    credential_path = path.join('jira-to-gs.json')
 
-    parser = argparse.ArgumentParser(parents=[tools.argparser])
+    parser = ArgumentParser(parents=[tools.argparser])
     flags = parser.parse_args()
 
     store = Storage(credential_path)
@@ -101,8 +104,8 @@ def getValues(issues, *args):
         ### Use this if you're trying to grab values from a change log. It's often pretty time consuming, so if there's any other methods of retrieving the same data without diving into the change log, use that.
         ''' 
         getUrl = apiBase + '/issue/' + issueKey + '?expand=changelog'
-        getResponse = requests.get(getUrl, headers=headersGetJira)
-        data = json.loads(getResponse.text)
+        getResponse = get(getUrl, headers=headersGetJira)
+        data = loads(getResponse.text)
 
         for change in data['changelog']['histories']:
             if change['items'][0]['fromString'] == 'Open':
@@ -121,8 +124,8 @@ def getValues(issues, *args):
 
 def getFullJSON(issueKey):
     getUrl =  apiBase + '/issue/' + issueKey
-    getResponse = requests.get(getUrl, headers=headersGetJira)
-    data = json.loads(getResponse.text)
+    getResponse = get(getUrl, headers=headersGetJira)
+    data = loads(getResponse.text)
     
     print data
             
@@ -154,11 +157,11 @@ def queryData(query, start, *args):
 
     ### Send payload to search URL to get data.
     searchUrl = apiBase + '/search'
-    getResponse = requests.post(searchUrl, headers=headersPostJira, data=payload)
+    getResponse = post(searchUrl, headers=headersPostJira, data=payload)
     
     ### Try to convert JSON to use in Python. We'll pass if nothing that can be converted comes back.
     try:
-        data = json.loads(getResponse.text)
+        data = loads(getResponse.text)
         values += getValues(data['issues'], *args)
     except:
         pass
@@ -172,31 +175,31 @@ def queryData(query, start, *args):
 def queryAndWrite(sheet, tab, query, service, clear, *args):
     print 'Getting data for ' + tab + ': '
     values = queryData(query, 0, *args)
-    print len(values) + ' rows found'
+    print str(len(values)) + ' rows found'
     
     if len(values) > 0:
         writeSheet(sheet, tab, values, service, clear)
 
 def run():
     ### Time when this script started.
-    start = time.time()
+    start = time()
     
     ### Run through OAuth with Google Sheets.
     credentials = getCredentials()
-    http = credentials.authorize(httplib2.Http())
+    http = credentials.authorize(Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
     service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
 
     ### Set the spreadsheet ID and tab for Google Sheets as well as the JQL query we're using to pull data from JIRA. We'll also be passing the service we created to interact with the Google Sheets API.
-    sheet = 'SPREADSHEET_ID'
-    tab = 'TABNAME'
-    query = 'QUERY'
+    sheet = '1LIsGB6ke9mRbxMsgIm1J1OknqABQlFxOloGneFQPgbo'
+    tab = 'Sheet1'
+    query = 'project = C360 AND ("Customer Type - Category" in cascadeOption(28821, 28823)) AND "Region - Country" in cascadeOption(33250) AND created > "-3d" AND (status = "Done" OR status = "Approved") ORDER BY cf[21001] ASC, cf[17201] ASC, status ASC, cf[14877] DESC, created DESC'
     
     ### Query the data and write it to the sheet!
     queryAndWrite(sheet, tab, query, service, True)
     
     ### Print the time it took to run this script.
-    end = time.time()
+    end = time()
     print ('Time Elapsed: ' + str(int(end - start))) + 's'
     
 run()
