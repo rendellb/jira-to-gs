@@ -13,6 +13,8 @@ pip install -r requirements.txt
 
 * Place your JIRA token into the token variable of gsjiraconfig.py.
 
+* Replace the domain in the apiBase URL with your company's JIRA domain.
+
 * Download and replace the client_secrets.json file with yours from the Google Cloud Platform.
 
 * Populate the sheet var with the Google Sheet spreadsheet ID, tab var with the tab name in the sheet, and query var with your JQL query.
