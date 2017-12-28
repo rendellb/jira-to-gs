@@ -12,5 +12,5 @@ headersPostJira = {
 }
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
-CLIENT_SECRET_FILE = 'client_secret.json'
+CLIENT_SECRET_FILE = 'client_secrets.json'
 APPLICATION_NAME = 'JIRA to Google Sheets Script'
