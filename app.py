@@ -89,7 +89,7 @@ def getValues(issues, *args):
         except:
             pass
 
-        ### Define any additioanl custom args here.
+        ### Define any additional custom args here.
         if 'typecat' in args:
             try:
                 first = issue['fields']['customfield_19331']
