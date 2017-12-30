@@ -201,5 +201,3 @@ def run():
     ### Print the time it took to run this script.
     end = time()
     print ('Time Elapsed: ' + str(int(end - start))) + 's'
-    
-run()
